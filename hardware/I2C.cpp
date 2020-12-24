@@ -443,12 +443,12 @@ void I2C::MCP23017_Init()
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // write to i2c failed
 	}
-	if (I2CWriteReg8(fd, MCP23x17_IPOLA, 0xFF) < 0)
+	if (I2CWriteReg8(fd, MCP23x17_GPPUA, 0xFF) < 0)
 	{ // set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // write to i2c failed
 	}
-	if (I2CWriteReg8(fd, MCP23x17_IPOLB, 0xFF) < 0)
+	if (I2CWriteReg8(fd, MCP23x17_GPPUB, 0xFF) < 0)
 	{ // set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // write to i2c failed
