@@ -785,7 +785,7 @@ int I2C::I2CWriteReg8(int fd, uint8_t reg, uint8_t value)
 	i2c_data bytes;
 	bytes.word = value;
 	struct i2c_msg write_reg[1] = {
-		{ m_i2c_addr, 0, 3, datatosend } // flag absent == write, two registers, one for register address and one for the value to write
+		{ m_i2c_addr, 0, 2, datatosend } // flag absent == write, two registers, one for register address and one for the value to write
 	};
 	datatosend[0] = reg;		// address of register to write
 	datatosend[1] = bytes.byte[0];	// value to write
