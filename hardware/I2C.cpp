@@ -433,10 +433,53 @@ void I2C::MCP23017_Init()
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; 											// write to i2c failed
 	}*/
-	if (I2CWriteReg16(fd, MCP23x17_IODIRA, 0xFFFF) < 0) {	// set all gpio pins on the port as input
+	if (I2CWriteReg8(fd, MCP23x17_IODIRA, 0xFF) < 0)
+	{ // set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; 											// write to i2c failed
+		return; // write to i2c failed
 	}
+	if (I2CWriteReg8(fd, MCP23x17_IODIRB, 0xFF) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+	if (I2CWriteReg8(fd, MCP23x17_IPOLA, 0xFF) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+	if (I2CWriteReg8(fd, MCP23x17_IPOLB, 0xFF) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+	if (I2CWriteReg8(fd, MCP23x17_GPINTENA, 0xFF) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+	if (I2CWriteReg8(fd, MCP23x17_GPINTENB, 0xFF) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+	if (I2CWriteReg8(fd, MCP23x17_IOCON, 0x40) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+	if (I2CWriteReg8(fd, MCP23x17_IOCONB, 0x40) < 0)
+	{ // set all gpio pins on the port as input
+		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return; // write to i2c failed
+	}
+
+	/*
+# Connect Interrupt-Pin A with the one of B (MIRROR = 1): 
+/usr/sbin/i2cset -y 1 0x21 0x0A 0x40
+# Connect Interrupt-Pin B with the one of A (MIRROR = 1): 
+/usr/sbin/i2cset -y 1 0x21 0x0B 0x40
+	*/
 	close(fd);
 #endif
 }
@@ -717,18 +760,46 @@ int I2C::I2CWriteReg16(int fd, uint8_t reg, uint16_t value)
 	struct i2c_msg write_reg[1] = {
 		{ m_i2c_addr, 0, 3, datatosend } // flag absent == write, two registers, one for register address and one for the value to write
 	};
-	datatosend[0] = reg;						// address of register to write
-	datatosend[1] = bytes.byte[0];						// value to write
-	datatosend[2] = bytes.byte[1];						// value to write
-	messagebuffer.msgs = write_reg;				//load the 'write_reg' message into the buffer
+	datatosend[0] = reg;		// address of register to write
+	datatosend[1] = bytes.byte[0];	// value to write
+	datatosend[2] = bytes.byte[1];	// value to write
+	messagebuffer.msgs = write_reg; // load the 'write_reg' message into the buffer
 	messagebuffer.nmsgs = 1;
-	rc = ioctl(fd, I2C_RDWR, &messagebuffer); //Send the buffer to the bus and returns a send status
-	if (rc < 0) {
+	rc = ioctl(fd, I2C_RDWR, &messagebuffer); // Send the buffer to the bus and returns a send status
+	if (rc < 0)
+	{
 		//			_log.Log(LOG_NORM, "I2C::I2CReadReg16. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return rc;
 	}
 	return 0;
 #endif
+}
+int I2C::I2CWriteReg8(int fd, uint8_t reg, uint8_t value)
+{
+/*#ifndef HAVE_LINUX_I2C
+	return -1;
+#else*/
+	int rc;
+	struct i2c_rdwr_ioctl_data messagebuffer;
+	uint8_t datatosend[2];
+	i2c_data bytes;
+	bytes.word = value;
+	struct i2c_msg write_reg[1] = {
+		{ m_i2c_addr, 0, 3, datatosend } // flag absent == write, two registers, one for register address and one for the value to write
+	};
+	datatosend[0] = reg;		// address of register to write
+	datatosend[1] = bytes.byte[0];	// value to write
+	//datatosend[2] = bytes.byte[1];	// value to write
+	messagebuffer.msgs = write_reg; // load the 'write_reg' message into the buffer
+	messagebuffer.nmsgs = 1;
+	rc = ioctl(fd, I2C_RDWR, &messagebuffer); // Send the buffer to the bus and returns a send status
+	if (rc < 0)
+	{
+		//			_log.Log(LOG_NORM, "I2C::I2CReadReg16. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
+		return rc;
+	}
+	return 0;
+//#endif
 }
 
 int I2C::I2CReadReg16(int fd, unsigned char reg, i2c_data *data)
