@@ -497,7 +497,7 @@ void I2C::MCP23017_ReadChipDetails()
 	int fd = i2c_Open(m_ActI2CBus.c_str()); // open i2c
 	if (fd < 0) return; // Error opening i2c device!
 
-	rc = I2CReadReg16(fd, MCP23x17_IODIRA, &data); 				// get current iodir port value
+	rc = I2CReadReg16(fd, MCP23x17_GPIOA, &data); 				// get current iodir port value
 	close(fd);
 
 	if (rc < 0) {
