@@ -397,7 +397,7 @@ void I2C::MCP23017_Init()
 	int unit;
 	bool value = false;
 
-	results = m_sql.safe_query("SELECT Unit, nValue FROM DeviceStatus WHERE (HardwareID = %d) AND (DeviceID like '000%02X%%');", m_HwdID, m_i2c_addr);
+	/*results = m_sql.safe_query("SELECT Unit, nValue FROM DeviceStatus WHERE (HardwareID = %d) AND (DeviceID like '000%02X%%');", m_HwdID, m_i2c_addr);
 	if (!results.empty())
 	{
 		for (const auto &sd : results)
@@ -432,8 +432,8 @@ void I2C::MCP23017_Init()
 	if (I2CWriteReg16(fd, MCP23x17_GPIOA, GPIO_reg) < 0) {	// write values from domoticz db to gpio register
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; 											// write to i2c failed
-	}
-	if (I2CWriteReg16(fd, MCP23x17_IODIRA, 0x0000) < 0) {	// set all gpio pins on the port as output
+	}*/
+	if (I2CWriteReg16(fd, MCP23x17_IODIRA, 0xFFFF) < 0) {	// set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; 											// write to i2c failed
 	}
@@ -461,11 +461,11 @@ void I2C::MCP23017_ReadChipDetails()
 		_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails. %s. Failed to read from I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; //read from i2c failed
 	}
-	if (data.word == 0xFFFF)
+	/*if (data.word == 0xFFFF)
 	{ // if oidir port is 0xFFFF means the chip has been reset
 		_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails, Cur_iodir: 0xFFFF, call MCP23017_Init");
 		MCP23017_Init();										// initialize gpio pins with switch status from db
-	}
+	}*/
 #endif
 }
 
