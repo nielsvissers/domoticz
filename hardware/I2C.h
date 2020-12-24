@@ -106,5 +106,6 @@ class I2C : public CDomoticzHardwareBase
 	void MCP23017_ReadChipDetails();
 	int MCP23017_WritePin(uint8_t pin_number, uint8_t value);
 	int I2CWriteReg16(int fd, uint8_t reg, uint16_t value);
+	int I2CWriteReg8(int fd, uint8_t reg, uint8_t value);
 	int I2CReadReg16(int fd, unsigned char reg, i2c_data *data);
 };
