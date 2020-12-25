@@ -493,18 +493,26 @@ void I2C::MCP23017_ReadChipDetails()
 	i2c_data data;
 	int rc;
 
-
 	int fd = i2c_Open(m_ActI2CBus.c_str()); // open i2c
-	if (fd < 0) return; // Error opening i2c device!
+	if (fd < 0)
+		return; // Error opening i2c device!
 
-	rc = I2CReadReg16(fd, MCP23x17_GPIOA, &data); 				// get current iodir port value
+	rc = I2CReadReg16(fd, MCP23x17_GPIOA, &data); // get current iodir port value
 	close(fd);
 
-	if (rc < 0) {
+	if (rc < 0)
+	{
 		_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails. %s. Failed to read from I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; //read from i2c failed
+		return; // read from i2c failed
 	}
-	_log.Log(LOG_NORM, "0x%x", data.word);
+
+	for (char pin_number = 0; pin_number < 16; pin_number++)
+	{
+		bool localValue = data & (1 << pin_number);
+		int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
+		SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create switch
+	}
+
 	/*if (data.word == 0xFFFF)
 	{ // if oidir port is 0xFFFF means the chip has been reset
 		_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails, Cur_iodir: 0xFFFF, call MCP23017_Init");
