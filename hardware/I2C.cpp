@@ -508,7 +508,7 @@ void I2C::MCP23017_ReadChipDetails()
 
 	for (char pin_number = 0; pin_number < 16; pin_number++)
 	{
-		bool localValue = data & (1 << pin_number);
+		bool localValue = data.word & (1 << pin_number);
 		int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
 		SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create switch
 	}
