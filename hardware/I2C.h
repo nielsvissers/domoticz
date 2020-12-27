@@ -20,7 +20,7 @@ class I2C : public CDomoticzHardwareBase
 		I2CTYPE_BME280,
 		I2CTYPE_MCP23017
 	};
-	explicit I2C(int ID, _eI2CType DevType, const std::string &Address, const std::string &SerialPort, int Mode1);
+	explicit I2C(int ID, _eI2CType DevType, const std::string &Address, const std::string &SerialPort, int Mode1, int Mode2, int Mode3);
 	~I2C() override = default;
 	bool WriteToHardware(const char *pdata, unsigned char length) override;
 
@@ -50,6 +50,8 @@ class I2C : public CDomoticzHardwareBase
 	uint8_t m_i2c_addr;
 	std::string m_ActI2CBus;
 	bool m_invert_data;
+	uint16_t m_direction;
+	uint16_t m_pullup;
 
 	// BMP085 stuff
 	// Forecast

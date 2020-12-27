@@ -148,11 +148,12 @@ const char* szI2CTypeNames[] = {
 	"I2C_MCP23017",
 };
 
-I2C::I2C(const int ID, const _eI2CType DevType, const std::string &Address, const std::string &SerialPort, const int Mode1) :
+I2C::I2C(const int ID, const _eI2CType DevType, const std::string &Address, const std::string &SerialPort, const int Mode1, const int Mode2, const int Mode3)
+	:
 	m_dev_type(DevType),
 	m_i2c_addr((uint8_t)atoi(Address.c_str())),
 	m_ActI2CBus(SerialPort),
-	m_invert_data((bool)Mode1)
+	m_invert_data((bool)Mode1), m_direction(Mode2), m_pullup(Mode3)
 {
 	_log.Log(LOG_STATUS, "I2C  Start HW witf ID: %d Name: %s Address: %d Port: %s Invert:%d ", ID, szI2CTypeNames[m_dev_type], m_i2c_addr, m_ActI2CBus.c_str(), m_invert_data);
 	m_HwdID = ID;
@@ -397,7 +398,7 @@ void I2C::MCP23017_Init()
 	int unit;
 	bool value = false;
 
-	/*results = m_sql.safe_query("SELECT Unit, nValue FROM DeviceStatus WHERE (HardwareID = %d) AND (DeviceID like '000%02X%%');", m_HwdID, m_i2c_addr);
+	results = m_sql.safe_query("SELECT Unit, nValue FROM DeviceStatus WHERE (HardwareID = %d) AND (DeviceID like '000%02X%%');", m_HwdID, m_i2c_addr);
 	if (!results.empty())
 	{
 		for (const auto &sd : results)
@@ -432,54 +433,17 @@ void I2C::MCP23017_Init()
 	if (I2CWriteReg16(fd, MCP23x17_GPIOA, GPIO_reg) < 0) {	// write values from domoticz db to gpio register
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; 											// write to i2c failed
-	}*/
-	if (I2CWriteReg8(fd, MCP23x17_IODIRA, 0xFF) < 0)
+	}
+	if (I2CWriteReg16(fd, MCP23x17_IODIRA, 0xFF00) < 0) //set direction
 	{ // set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // write to i2c failed
 	}
-	if (I2CWriteReg8(fd, MCP23x17_IODIRB, 0xFF) < 0)
+	if (I2CWriteReg16(fd, MCP23x17_GPPUA, 0xFF00) < 0) //set pullup
 	{ // set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // write to i2c failed
 	}
-	if (I2CWriteReg8(fd, MCP23x17_GPPUA, 0xFF) < 0)
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-	if (I2CWriteReg8(fd, MCP23x17_GPPUB, 0xFF) < 0)
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-	if (I2CWriteReg8(fd, MCP23x17_GPINTENA, 0xFF) < 0)
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-	if (I2CWriteReg8(fd, MCP23x17_GPINTENB, 0xFF) < 0)
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-	if (I2CWriteReg8(fd, MCP23x17_IOCON, 0x40) < 0)
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-	if (I2CWriteReg8(fd, MCP23x17_IOCONB, 0x40) < 0)
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-
-	/*
-# Connect Interrupt-Pin A with the one of B (MIRROR = 1): 
-/usr/sbin/i2cset -y 1 0x21 0x0A 0x40
-# Connect Interrupt-Pin B with the one of A (MIRROR = 1): 
-/usr/sbin/i2cset -y 1 0x21 0x0B 0x40
-	*/
 	close(fd);
 #endif
 }
@@ -510,12 +474,12 @@ void I2C::MCP23017_ReadChipDetails()
 	{
 		bool localValue = data.word & (1 << pin_number);
 
-		if (m_invert_data == true)
+		/*if (m_invert_data == true)
 		{
 			localValue =~localValue;
-		}
+		}*/
 		int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
-		SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create switch
+		SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create/update switch
 	}
 
 	/*if (data.word == 0xFFFF)
