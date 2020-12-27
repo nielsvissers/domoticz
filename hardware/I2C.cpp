@@ -469,6 +469,7 @@ void I2C::MCP23017_ReadChipDetails()
 		_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails. %s. Failed to read from I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // read from i2c failed
 	}
+	_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails. %s. Failed to read from I2C device at address: 0x%x 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr,data.word);
 
 	for (char pin_number = 0; pin_number < 16; pin_number++)
 	{
