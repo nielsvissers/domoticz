@@ -469,18 +469,20 @@ void I2C::MCP23017_ReadChipDetails()
 		_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails. %s. Failed to read from I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // read from i2c failed
 	}
-	_log.Log(LOG_NORM, "I2C::MCP23017_ReadChipDetails. %s. Failed to read from I2C device at address: 0x%x 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr,data.word);
 
 	for (char pin_number = 0; pin_number < 16; pin_number++)
 	{
 		bool localValue = data.word & (1 << pin_number);
-
-		if (m_invert_data == true)
+		bool pinIsInput = m_direction & (1 << pin_number);
+		if (pinIsInput==true)
 		{
-			localValue =~localValue;
+			if (m_invert_data == true)
+			{
+				localValue = ~localValue;
+			}
+			int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
+			SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create/update switch
 		}
-		int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
-		SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create/update switch
 	}
 
 	/*if (data.word == 0xFFFF)
