@@ -484,6 +484,7 @@ void I2C::MCP23017_ReadChipDetails()
 	{
 		bool localValue = data.word & (1 << pin_number);
 		bool pinIsInput = 0xFF00 & (1 << pin_number);
+		_log.Log(LOG_NORM, "data.word: %d localValue: %d pinisinput: %d", data.word, localValue, pinIsInput);
 
 		if (pinIsInput==true)
 		{
@@ -491,7 +492,6 @@ void I2C::MCP23017_ReadChipDetails()
 			{
 				localValue = ~localValue;
 			}
-					_log.Log(LOG_NORM, "data.word: %d localValue: %d pinisinput: %d", data.word, localValue, pinIsInput);
 int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
 			SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create/update switch
 		}
