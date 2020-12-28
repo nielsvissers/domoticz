@@ -444,16 +444,6 @@ void I2C::MCP23017_Init()
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; // write to i2c failed
 	}
-	if (I2CWriteReg16(fd, MCP23x17_GPINTENA, 0xFF00) < 0) // set pullup
-	{ // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
-	if (I2CWriteReg16(fd, MCP23x17_IOCON, 0xFF00) < 0) // set pullup
-	{						   // set all gpio pins on the port as input
-		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
-		return; // write to i2c failed
-	}
 	close(fd);
 #endif
 }
@@ -484,7 +474,7 @@ void I2C::MCP23017_ReadChipDetails()
 	{
 		bool localValue = data.word & (1 << pin_number);
 		bool pinIsInput = 0xFF00 & (1 << pin_number);
-		_log.Log(LOG_NORM, "data.word: %d localValue: %d pinisinput: %d", data.word, localValue, pinIsInput);
+		_log.Log(LOG_NORM, "data.word: 0x%x localValue: %d pinisinput: %d", data.word, localValue, pinIsInput);
 
 		if (pinIsInput==true)
 		{
