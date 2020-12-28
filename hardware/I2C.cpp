@@ -397,7 +397,7 @@ void I2C::MCP23017_Init()
 	uint16_t GPIO_reg = 0xFFFF;
 	int unit;
 	bool value = false;
-
+	/*
 	results = m_sql.safe_query("SELECT Unit, nValue FROM DeviceStatus WHERE (HardwareID = %d) AND (DeviceID like '000%02X%%');", m_HwdID, m_i2c_addr);
 	if (!results.empty())
 	{
@@ -433,7 +433,7 @@ void I2C::MCP23017_Init()
 	if (I2CWriteReg16(fd, MCP23x17_GPIOA, GPIO_reg) < 0) {	// write values from domoticz db to gpio register
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
 		return; 											// write to i2c failed
-	}
+	}*/
 	if (I2CWriteReg16(fd, MCP23x17_IODIRA, 0xFFFF) < 0) //set direction
 	{ // set all gpio pins on the port as input
 		_log.Log(LOG_NORM, "I2C::MCP23017_Init. %s. Failed to write to I2C device at address: 0x%x", szI2CTypeNames[m_dev_type], m_i2c_addr);
@@ -473,15 +473,15 @@ void I2C::MCP23017_ReadChipDetails()
 	for (char pin_number = 0; pin_number < 16; pin_number++)
 	{
 		bool localValue = data.word & (1 << pin_number);
-		bool pinIsInput = 0xFF00 & (1 << pin_number);
+		bool pinIsInput = 0xFFFF & (1 << pin_number);
 		_log.Log(LOG_NORM, "data.word: 0x%x localValue: %d pinisinput: %d", data.word, localValue, pinIsInput);
 
 		if (pinIsInput==true)
 		{
-			if (m_invert_data == true)
+			/*if (m_invert_data == true)
 			{
 				localValue = ~localValue;
-			}
+			}*/
 int DeviceID = (m_i2c_addr << 16) + pin_number;			  // DeviceID from i2c_address and pin_number
 			SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create/update switch
 		}
