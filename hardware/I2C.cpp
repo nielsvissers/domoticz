@@ -484,6 +484,8 @@ void I2C::MCP23017_ReadChipDetails()
 	{
 		bool localValue = data.word & (1 << pin_number);
 		bool pinIsInput = 0xFF00 & (0 << pin_number);
+		_log.Log(LOG_NORM, "data.word: %s localValue: %s pinisinput: %s", data.word, localValue, pinIsInput);
+
 		if (pinIsInput==true)
 		{
 			if (m_invert_data == true)
