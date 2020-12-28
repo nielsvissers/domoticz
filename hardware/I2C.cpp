@@ -482,7 +482,7 @@ void I2C::MCP23017_ReadChipDetails()
 			{
 				localValue = ~localValue;
 			}*/
-int DeviceID = (m_i2c_addr << 16) + pin_number;			  // DeviceID from i2c_address and pin_number
+int DeviceID = (m_i2c_addr << 8) + pin_number;			  // DeviceID from i2c_address and pin_number
 			SendSwitch(DeviceID, pin_number, 255, localValue, 0, "", m_Name); // create/update switch
 		}
 	}
